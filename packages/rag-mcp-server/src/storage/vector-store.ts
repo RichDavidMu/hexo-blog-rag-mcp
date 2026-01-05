@@ -1,12 +1,7 @@
-import { dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import type { Connection, Table } from '@lancedb/lancedb';
 import lancedb from '@lancedb/lancedb';
 import type { Chunk } from '../utils/splitter.js';
 import logger from '../utils/logger.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 function simpleVectorize(text: string): number[] {
   // 这里演示简单的哈希方法，实际应用建议使用专业的embedding模型
