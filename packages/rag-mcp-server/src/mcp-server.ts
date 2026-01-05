@@ -30,7 +30,6 @@ export class HexoRAGMCPServer {
   async start() {
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: undefined,
-      enableJsonResponse: true,
     });
 
     await this.server.connect(transport);
