@@ -6,6 +6,7 @@ import chokidar from 'chokidar';
 import { HexoLoader } from './loaders/hexo-loader.js';
 import { TextSplitter } from './utils/splitter.js';
 import { VectorStore } from './storage/vector-store.js';
+import logger from './utils/logger.js';
 
 export class HexoRAGMCPServer {
   private vectorStore: VectorStore;
@@ -34,11 +35,11 @@ export class HexoRAGMCPServer {
 
     await this.server.connect(transport);
     this.transport = transport;
-    console.error('Hexo RAG MCP Server running on stdio');
+    logger.info('Hexo RAG MCP Server running on stdio');
   }
 
   async initialize(): Promise<void> {
-    console.error('Initializing RAG MCP Server...');
+    logger.info('Initializing RAG MCP Server...');
 
     // 初始化向量存储
     await this.vectorStore.initialize();
@@ -54,7 +55,7 @@ export class HexoRAGMCPServer {
 
   private startFileWatcher(): void {
     const postsDir = path.join(this.hexoBlogPath, 'source', '_posts');
-    console.error(`Starting file watcher on: ${postsDir}`);
+    logger.info(`Starting file watcher on: ${postsDir}`);
 
     const watcher = chokidar.watch(postsDir, {
       persistent: true,
@@ -63,25 +64,25 @@ export class HexoRAGMCPServer {
 
     watcher
       .on('add', (filePath) => {
-        console.error(`File added: ${filePath}`);
+        logger.info(`File added: ${filePath}`);
         this.handleFileChange(filePath).catch((err) => {
-          console.error(`Error handling file add: ${err}`);
+          logger.error(`Error handling file add`, { error: err });
         });
       })
       .on('change', (filePath) => {
-        console.error(`File changed: ${filePath}`);
+        logger.info(`File changed: ${filePath}`);
         this.handleFileChange(filePath).catch((err) => {
-          console.error(`Error handling file change: ${err}`);
+          logger.error(`Error handling file change`, { error: err });
         });
       })
       .on('unlink', (filePath) => {
-        console.error(`File deleted: ${filePath}`);
+        logger.info(`File deleted: ${filePath}`);
         this.handleFileDelete(filePath).catch((err) => {
-          console.error(`Error handling file delete: ${err}`);
+          logger.error(`Error handling file delete`, { error: err });
         });
       });
 
-    console.error('File watcher started');
+    logger.info('File watcher started');
   }
 
   private async handleFileChange(filePath: string): Promise<void> {
@@ -99,22 +100,22 @@ export class HexoRAGMCPServer {
     const existingHash = dbHashes.get(doc.title);
 
     if (existingHash === hash) {
-      console.error(`File unchanged, skipping: ${doc.title}`);
+      logger.info(`File unchanged, skipping: ${doc.title}`);
       return;
     }
 
     // 删除旧数据（如果存在）
     if (existingHash) {
-      console.error(`Updating document: ${doc.title}`);
+      logger.info(`Updating document: ${doc.title}`);
       await this.vectorStore.deleteDocumentByTitle(doc.title);
     } else {
-      console.error(`Adding new document: ${doc.title}`);
+      logger.info(`Adding new document: ${doc.title}`);
     }
 
     // 分割并添加文档
     const chunks = this.splitter.split(doc.content, doc.id, doc.title);
     await this.vectorStore.addChunks(chunks, hash);
-    console.error(`Document indexed: ${doc.title}`);
+    logger.info(`Document indexed: ${doc.title}`);
   }
 
   private async handleFileDelete(filename: string): Promise<void> {
@@ -123,19 +124,19 @@ export class HexoRAGMCPServer {
     // 尝试从数据库中找到并删除这个文档
     // 由于我们不知道文档的 title，需要通过 docId 来删除
     await this.vectorStore.deleteDocument(docId);
-    console.error(`Document deleted: ${docId}`);
+    logger.info(`Document deleted: ${docId}`);
   }
 
   private async updateIndex(): Promise<void> {
-    console.error('Updating index...');
+    logger.info('Updating index...');
 
     // 获取数据库中已有的文档哈希值（title -> hash）
     const dbHashes = await this.vectorStore.getDocumentHashes();
-    console.error(`Found ${dbHashes.size} documents in database`);
+    logger.info(`Found ${dbHashes.size} documents in database`);
 
     // 获取文件系统中所有文档的信息
     const docInfos = await this.loader.getAllDocumentInfo();
-    console.error(`Found ${docInfos.length} documents in filesystem`);
+    logger.info(`Found ${docInfos.length} documents in filesystem`);
 
     const currentTitles = new Set<string>();
     let added = 0;
@@ -152,19 +153,19 @@ export class HexoRAGMCPServer {
 
       if (existingHash === docInfo.hash) {
         // 哈希值相同，跳过
-        console.error(`Skipping unchanged document: ${doc.title}`);
+        logger.info(`Skipping unchanged document: ${doc.title}`);
         skipped++;
         continue;
       }
 
       if (existingHash) {
         // 文档存在但哈希值不同，删除旧数据
-        console.error(`Updating document: ${doc.title}`);
+        logger.info(`Updating document: ${doc.title}`);
         await this.vectorStore.deleteDocumentByTitle(doc.title);
         updated++;
       } else {
         // 新文档
-        console.error(`Adding new document: ${doc.title}`);
+        logger.info(`Adding new document: ${doc.title}`);
         added++;
       }
 
@@ -177,19 +178,19 @@ export class HexoRAGMCPServer {
     let deleted = 0;
     for (const [title] of dbHashes) {
       if (!currentTitles.has(title)) {
-        console.error(`Deleting removed document: ${title}`);
+        logger.info(`Deleting removed document: ${title}`);
         await this.vectorStore.deleteDocumentByTitle(title);
         deleted++;
       }
     }
 
-    console.error(
+    logger.info(
       `Index update complete: ${added} added, ${updated} updated, ${skipped} skipped, ${deleted} deleted`,
     );
   }
 
   registerTools(): void {
-    console.error('Registering tools...');
+    logger.info('Registering tools...');
     this.server.registerTool(
       'search_blog',
       {

@@ -2,6 +2,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import fs from 'fs-extra';
 import matter from 'gray-matter';
+import logger from '../utils/logger.js';
 
 export interface Document {
   id: string;
@@ -47,7 +48,7 @@ export class HexoLoader {
             hash,
           });
         } catch (error) {
-          console.error(`Error getting info for ${file}:`, error);
+          logger.error(`Error getting info for ${file}`, { error });
         }
       }
     }

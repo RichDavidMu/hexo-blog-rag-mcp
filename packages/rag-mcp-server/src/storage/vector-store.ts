@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import type { Connection, Table } from '@lancedb/lancedb';
 import lancedb from '@lancedb/lancedb';
 import type { Chunk } from '../utils/splitter.js';
+import logger from '../utils/logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -37,7 +38,7 @@ export class VectorStore {
     } catch (_) {
       this.table = null;
     }
-    console.error('Vector database initialized');
+    logger.info('Vector database initialized');
   }
 
   async addChunks(chunks: Chunk[], hash: string): Promise<void> {
@@ -60,7 +61,7 @@ export class VectorStore {
       await this.table.add(data);
     }
 
-    console.error(`Added ${data.length} chunks to vector store`);
+    logger.info(`Added ${data.length} chunks to vector store`);
   }
 
   async search(query: string, topK: number = 5, threshold: number = 1.0): Promise<Chunk[]> {
@@ -110,7 +111,7 @@ export class VectorStore {
     }
 
     await this.table.delete(`docId = "${docId}"`);
-    console.error(`Deleted document: ${docId}`);
+    logger.info(`Deleted document: ${docId}`);
   }
 
   async deleteDocumentByTitle(title: string): Promise<void> {
@@ -119,6 +120,6 @@ export class VectorStore {
     }
 
     await this.table.delete(`title = "${title}"`);
-    console.error(`Deleted document by title: ${title}`);
+    logger.info(`Deleted document by title: ${title}`);
   }
 }
