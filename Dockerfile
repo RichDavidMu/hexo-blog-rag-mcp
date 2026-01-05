@@ -3,7 +3,7 @@ FROM node:22-slim
 WORKDIR /app
 COPY output/. /app/
 
-RUN mkdir logs && mkdir db && mkdir source
+RUN npm install pnpm -g && mkdir logs && mkdir db && mkdir source
 
 EXPOSE 3000
 
