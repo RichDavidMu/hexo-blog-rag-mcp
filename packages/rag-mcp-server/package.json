@@ -1,0 +1,28 @@
+{
+  "name": "rag-mcp-server",
+  "version": "1.0.0",
+  "description": "",
+  "license": "Apache-2.0",
+  "author": "RichDavidMu",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc && chmod 755 build/index.js",
+    "dev": "([ ! -f .env ] && touch .env);NODE_ENV=development tsx --env-file=.env src/index.ts",
+    "start": "NODE_ENV=production node dist/index.js"
+  },
+  "dependencies": {
+    "@lancedb/lancedb": "^0.23.0",
+    "@modelcontextprotocol/sdk": "^1.25.1",
+    "@types/fs-extra": "^11.0.4",
+    "express": "^5.2.1",
+    "fs-extra": "^11.3.3",
+    "gray-matter": "^4.0.3",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
