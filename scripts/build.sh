@@ -6,3 +6,4 @@ echo "pnpm: v$(pnpm -v)"
 
 pnpm install --frozen-lockfile
 pnpm run build:mcp
+pnpm run deploy:mcp
