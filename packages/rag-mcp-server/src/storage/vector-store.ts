@@ -40,7 +40,7 @@ export class VectorStore {
     console.error('Vector database initialized');
   }
 
-  async addChunks(chunks: Chunk[]): Promise<void> {
+  async addChunks(chunks: Chunk[], hash: string): Promise<void> {
     const data = chunks.map((chunk) => ({
       id: `${chunk.docId}_${chunk.chunkIndex}`,
       text: chunk.text,
@@ -48,6 +48,7 @@ export class VectorStore {
       docId: chunk.docId,
       title: chunk.title,
       chunkIndex: chunk.chunkIndex,
+      hash,
     }));
     if (!this.db) {
       throw new Error('Vector store not initialized');
@@ -62,7 +63,7 @@ export class VectorStore {
     console.error(`Added ${data.length} chunks to vector store`);
   }
 
-  async search(query: string, topK: number = 5): Promise<Chunk[]> {
+  async search(query: string, topK: number = 5, threshold: number = 1.0): Promise<Chunk[]> {
     if (!this.table) {
       throw new Error('Vector store not initialized');
     }
@@ -70,11 +71,54 @@ export class VectorStore {
     const queryVector = simpleVectorize(query);
     const results = await this.table.search(queryVector).limit(topK).toArray();
 
-    return results.map((result: any) => ({
+    // 过滤掉距离大于阈值的结果（距离越小越相似）
+    const filteredResults = results.filter((result: any) => {
+      const distance = result._distance ?? Infinity;
+      return distance <= threshold;
+    });
+
+    return filteredResults.map((result: any) => ({
       text: result.text,
       docId: result.docId,
       title: result.title,
       chunkIndex: result.chunkIndex,
     }));
+  }
+
+  async getDocumentHashes(): Promise<Map<string, string>> {
+    if (!this.table) {
+      return new Map();
+    }
+
+    try {
+      const results = await this.table.query().select(['title', 'hash']).toArray();
+      const hashMap = new Map<string, string>();
+      for (const result of results) {
+        if (!hashMap.has(result.title)) {
+          hashMap.set(result.title, result.hash);
+        }
+      }
+      return hashMap;
+    } catch (_) {
+      return new Map();
+    }
+  }
+
+  async deleteDocument(docId: string): Promise<void> {
+    if (!this.table) {
+      throw new Error('Vector store not initialized');
+    }
+
+    await this.table.delete(`docId = "${docId}"`);
+    console.error(`Deleted document: ${docId}`);
+  }
+
+  async deleteDocumentByTitle(title: string): Promise<void> {
+    if (!this.table) {
+      throw new Error('Vector store not initialized');
+    }
+
+    await this.table.delete(`title = "${title}"`);
+    console.error(`Deleted document by title: ${title}`);
   }
 }
