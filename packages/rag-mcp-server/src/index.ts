@@ -41,11 +41,11 @@ app.delete('/mcp', async (_req: Request, res: Response) => {
   );
 });
 app.post('/mcp', async (req, res) => {
-  console.log('Received MCP request:', req.body);
+  logger.info('Received MCP request:', req.body);
   try {
     await mcpServer.transport!.handleRequest(req, res);
   } catch (error) {
-    console.error('Error handling MCP request:', error);
+    logger.error('Error handling MCP request:', { error });
     if (!res.headersSent) {
       res.status(500).json({
         jsonrpc: '2.0',
