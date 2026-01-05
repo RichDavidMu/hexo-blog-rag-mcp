@@ -2,6 +2,7 @@ import type { Connection, Table } from '@lancedb/lancedb';
 import lancedb from '@lancedb/lancedb';
 import type { Chunk } from '../utils/splitter.js';
 import logger from '../utils/logger.js';
+import { DB_DIR } from '../utils/env.js';
 
 function simpleVectorize(text: string): number[] {
   // 这里演示简单的哈希方法，实际应用建议使用专业的embedding模型
@@ -27,7 +28,7 @@ export class VectorStore {
   private table: Table | null = null;
 
   async initialize() {
-    this.db = await lancedb.connect(process.env.DB_DIR!);
+    this.db = await lancedb.connect(DB_DIR);
     try {
       this.table = await this.db.openTable('documents');
     } catch (_) {

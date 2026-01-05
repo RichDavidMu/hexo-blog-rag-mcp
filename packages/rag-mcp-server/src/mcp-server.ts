@@ -7,22 +7,22 @@ import { HexoLoader } from './loaders/hexo-loader.js';
 import { TextSplitter } from './utils/splitter.js';
 import { VectorStore } from './storage/vector-store.js';
 import logger from './utils/logger.js';
+import { HEXO_SOURCE_DIR, MCP_NAME } from './utils/env.js';
 
 export class HexoRAGMCPServer {
   private vectorStore: VectorStore;
   private loader: HexoLoader;
   private splitter: TextSplitter;
   private server: McpServer;
-  private hexoBlogPath: string;
+  private readonly hexoBlogPath = HEXO_SOURCE_DIR;
   transport: StreamableHTTPServerTransport | null = null;
 
-  constructor(hexoBlogPath: string) {
-    this.hexoBlogPath = hexoBlogPath;
+  constructor() {
     this.vectorStore = new VectorStore();
-    this.loader = new HexoLoader(hexoBlogPath);
+    this.loader = new HexoLoader();
     this.splitter = new TextSplitter(1000, 200);
     this.server = new McpServer({
-      name: process.env.MCP_NAME!,
+      name: MCP_NAME,
       version: '1.0.0',
     });
   }
@@ -54,7 +54,7 @@ export class HexoRAGMCPServer {
   }
 
   private startFileWatcher(): void {
-    const postsDir = path.join(this.hexoBlogPath, 'source', '_posts');
+    const postsDir = this.hexoBlogPath;
     logger.info(`Starting file watcher on: ${postsDir}`);
 
     const watcher = chokidar.watch(postsDir, {

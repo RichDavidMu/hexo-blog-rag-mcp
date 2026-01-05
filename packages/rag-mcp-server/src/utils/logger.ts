@@ -32,7 +32,7 @@ const errorRotateTransport = new DailyRotateFile({
 
 // 创建 logger 实例
 export const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
+  level: 'info',
   format: jsonFormat,
   transports: [dailyRotateTransport, errorRotateTransport],
 });

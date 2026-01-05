@@ -3,6 +3,7 @@ import crypto from 'node:crypto';
 import fs from 'fs-extra';
 import matter from 'gray-matter';
 import logger from '../utils/logger.js';
+import { HEXO_SOURCE_DIR } from '../utils/env.js';
 
 export interface Document {
   id: string;
@@ -22,11 +23,7 @@ export interface DocumentInfo {
 }
 
 export class HexoLoader {
-  private readonly postsDir: string;
-
-  constructor(hexoBlogPath: string) {
-    this.postsDir = path.join(hexoBlogPath, 'source', '_posts');
-  }
+  private readonly postsDir = HEXO_SOURCE_DIR;
 
   async calculateFileHash(filePath: string): Promise<string> {
     const content = await fs.readFile(filePath);

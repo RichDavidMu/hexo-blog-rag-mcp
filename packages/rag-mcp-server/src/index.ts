@@ -3,7 +3,7 @@ import { HexoRAGMCPServer } from './mcp-server.js';
 
 const app = express();
 app.use(express.json());
-const mcpServer = new HexoRAGMCPServer(process.env.HEXO_SOURCE_DIR!);
+const mcpServer = new HexoRAGMCPServer();
 await mcpServer.initialize();
 await mcpServer.start();
 app.post('/mcp', async (req, res) => {
