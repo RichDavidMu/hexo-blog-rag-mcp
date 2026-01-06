@@ -1,33 +1,36 @@
 # hexo-blog-rag-mcp
 
-A RAG MCP server for Hexo blog with vector search capabilities.
+中文 | [English](./README_EN.md)
 
-## Features
+基于向量搜索的 Hexo 博客 RAG (检索增强生成) MCP 服务器。
 
-- 🔍 Vector-based semantic search for Hexo blog posts
-- 🤖 Multiple embedding model support (Simple, OpenAI, Qwen)
-- 📊 Incremental indexing based on file hash
-- 👀 Real-time file watching for automatic updates
-- 📝 JSON-based structured logging
-- 🎯 Search threshold filtering
+## 功能特性
 
-## Environment Variables
+- 🔍 基于向量的 Hexo 博客语义搜索
+- 🤖 多种 Embedding 模型支持（Simple、OpenAI、Qwen）
+- 📊 基于文件哈希的增量索引
+- 👀 实时文件监听，自动更新索引
+- 📝 JSON 格式的结构化日志
+- 🎯 搜索相似度阈值过滤
+- 🔧 可自定义工具描述，精准控制 AI 调用场景
 
-### Required
+## 环境变量配置
 
-| Variable          | Description                             | Example              |
-| ----------------- | --------------------------------------- | -------------------- |
-| `HEXO_SOURCE_DIR` | Path to your Hexo blog source directory | `/path/to/hexo/blog` |
-| `DB_DIR`          | LanceDB vector database directory       | `./data`             |
-| `MCP_NAME`        | MCP server name                         | `hexo-blog-rag`      |
+### 必需配置
 
-### Embedding Configuration
+| 变量名            | 说明                    | 示例                 |
+| ----------------- | ----------------------- | -------------------- |
+| `HEXO_SOURCE_DIR` | Hexo 博客源文件目录路径 | `/path/to/hexo/blog` |
+| `DB_DIR`          | LanceDB 向量数据库目录  | `./data`             |
+| `MCP_NAME`        | MCP 服务器名称          | `hexo-blog-rag`      |
 
-Choose one of the following embedding methods:
+### Embedding 模型配置
 
-#### 1. Simple Embedding (Default)
+选择以下三种 Embedding 方法之一：
 
-No additional configuration needed. Uses a hash-based vectorization method.
+#### 1. Simple Embedding（默认）
+
+无需额外配置，使用基于哈希的简单向量化方法。
 
 ```bash
 EMBEDDING_TYPE=simple
@@ -86,53 +89,53 @@ TOOL_SEARCH_BLOG_DESCRIPTION="在 AI 和机器学习博客中搜索。涵盖深�
 TOOL_SEARCH_BLOG_DESCRIPTION="在博客中搜索相关内容。"
 ```
 
-### Optional
+### 可选配置
 
-| Variable    | Description                              | Default       |
-| ----------- | ---------------------------------------- | ------------- |
-| `NODE_ENV`  | Environment mode                         | `development` |
-| `LOG_LEVEL` | Logging level (error, warn, info, debug) | `info`        |
+| 变量名      | 说明                                | 默认值        |
+| ----------- | ----------------------------------- | ------------- |
+| `NODE_ENV`  | 运行环境模式                        | `development` |
+| `LOG_LEVEL` | 日志级别 (error, warn, info, debug) | `info`        |
 
-## Installation
+## 安装
 
 ```bash
-# Install dependencies
+# 安装依赖
 pnpm install
 
-# Build the project
+# 构建项目
 pnpm run build
 ```
 
-## Usage
+## 使用方法
 
-### Development
+### 开发环境
 
 ```bash
-# Create .env file
+# 创建 .env 文件
 cp .env.example .env
 
-# Edit .env with your configuration
-# Then start the server
+# 编辑 .env 配置你的环境变量
+# 然后启动服务器
 pnpm run dev
 ```
 
-### Production
+### 生产环境
 
 ```bash
-# Build the project
+# 构建项目
 pnpm run build
 
-# Start the server
+# 启动服务器
 pnpm run start
 ```
 
-### Docker
+### Docker 部署
 
 ```bash
-# Build image
+# 构建镜像
 docker build -t hexo-blog-rag-mcp .
 
-# Run container
+# 运行容器
 docker run -d \
   -p 3000:3000 \
   -e HEXO_SOURCE_DIR=/data/blog \
@@ -142,23 +145,23 @@ docker run -d \
   hexo-blog-rag-mcp
 ```
 
-## MCP Tools
+## MCP 工具
 
 ### `search_blog`
 
-Search for relevant content in the Hexo blog.
+在 Hexo 博客中搜索相关内容。
 
-**Parameters:**
+**参数：**
 
-- `query` (string, required): Search query
-- `topK` (number, optional): Number of results to return (default: 5)
-- `threshold` (number, optional): Similarity threshold (default: 1.0)
+- `query` (string, 必需): 搜索查询
+- `topK` (number, 可选): 返回结果数量（默认: 5）
+- `threshold` (number, 可选): 相似度阈值（默认: 1.0）
 
-**Example:**
+**示例：**
 
 ```json
 {
-  "query": "How to deploy Hexo",
+  "query": "如何部署 Hexo",
   "topK": 3,
   "threshold": 0.8
 }
@@ -166,31 +169,113 @@ Search for relevant content in the Hexo blog.
 
 ### `get_blog_context`
 
-Get blog content relevant to a question.
+获取博客内容用于回答问题。
 
-**Parameters:**
+**参数：**
 
-- `question` (string, required): User question
-- `threshold` (number, optional): Similarity threshold (default: 1.0)
+- `question` (string, 必需): 用户问题
+- `threshold` (number, 可选): 相似度阈值（默认: 1.0）
 
-**Example:**
+**示例：**
 
 ```json
 {
-  "question": "What is the best way to optimize Hexo blog performance?",
+  "question": "优化 Hexo 博客性能的最佳方法是什么？",
   "threshold": 0.7
 }
 ```
 
-## Logs
+## MCP Resources
 
-Logs are stored in the `logs/` directory:
+### `blog://all-posts`
 
-- `app-YYYY-MM-DD.log` - Application logs
-- `error-YYYY-MM-DD.log` - Error logs
+获取所有博客文章列表。
 
-Logs are rotated daily and kept for 14 days.
+**返回格式：** JSON，包含文章总数和文章标题列表。
 
-## License
+### `blog://posts/{title}`
+
+获取指定文章的完整内容。
+
+**参数：**
+
+- `title`: 文章标题（Markdown 文件名，不含 .md 扩展名）
+
+**返回格式：** 文章的完整 Markdown 内容。
+
+## 日志
+
+日志存储在 `logs/` 目录中：
+
+- `app-YYYY-MM-DD.log` - 应用日志
+- `error-YYYY-MM-DD.log` - 错误日志
+
+日志按天轮转，保留 14 天。
+
+## 工作原理
+
+### 增量索引
+
+系统使用 MD5 哈希值追踪文档变化：
+
+1. 启动时计算每个 Markdown 文件的哈希值
+2. 与数据库中存储的哈希值比较
+3. 仅重新索引发生变化的文件
+4. 自动从索引中删除已删除的文件
+
+### 文件监听
+
+实时监控博客目录的变化：
+
+- **文件新增**：自动索引新文章
+- **文件修改**：删除旧的 chunks 并重新索引
+- **文件删除**：从向量数据库中移除
+
+### 智能工具调用
+
+通过自定义工具描述，实现：
+
+1. **智能判断** - AI 在回答问题前判断是否需要搜索博客
+2. **减少无效调用** - 对于与博客主题无关的问题（如天气、新闻等），不会调用搜索工具
+3. **提高效率** - 只在相关主题下才搜索博客内容，节省 API 调用和响应时间
+
+**示例：**
+
+- ❌ "今天天气怎么样？" - AI 不会调用博客搜索
+- ❌ "帮我写一首诗" - AI 不会调用博客搜索
+- ✅ "React 中如何使用 useEffect？" - AI 会调用博客搜索
+- ✅ "LLM 的提示工程有什么技巧？" - AI 会调用博客搜索
+
+## 项目架构
+
+```
+hexo-blog-rag-mcp/
+├── packages/rag-mcp-server/
+│   ├── src/
+│   │   ├── services/
+│   │   │   └── embedding.ts       # Embedding 服务 (Simple/OpenAI/Qwen)
+│   │   ├── storage/
+│   │   │   └── vector-store.ts    # 向量数据库操作
+│   │   ├── loaders/
+│   │   │   └── hexo-loader.ts     # Hexo Markdown 文件加载器
+│   │   ├── utils/
+│   │   │   ├── logger.ts          # Winston 日志
+│   │   │   ├── splitter.ts        # 文本分割
+│   │   │   └── env.ts             # 环境变量
+│   │   ├── mcp-server.ts          # MCP 服务器核心
+│   │   └── index.ts               # 应用入口
+│   └── logs/                      # 日志文件
+└── .env                           # 配置文件
+```
+
+## 许可证
 
 Apache-2.0
+
+## 贡献
+
+欢迎贡献！请随时提交 Pull Request。
+
+## 支持
+
+如果遇到问题或有疑问，请[提交 issue](https://github.com/yourusername/hexo-blog-rag-mcp/issues)。
