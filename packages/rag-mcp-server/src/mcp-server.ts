@@ -1,8 +1,9 @@
 import path from 'node:path';
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import chokidar from 'chokidar';
+import type { DocumentInfo } from './loaders/hexo-loader.js';
 import { HexoLoader } from './loaders/hexo-loader.js';
 import { TextSplitter } from './utils/splitter.js';
 import { VectorStore } from './storage/vector-store.js';
@@ -21,6 +22,7 @@ export class HexoRAGMCPServer {
   private server: McpServer;
   private readonly hexoBlogPath = HEXO_SOURCE_DIR;
   transport: StreamableHTTPServerTransport | null = null;
+  docInfo: DocumentInfo[] = [];
 
   constructor() {
     this.vectorStore = new VectorStore();
@@ -55,6 +57,7 @@ export class HexoRAGMCPServer {
     this.startFileWatcher();
 
     this.registerTools();
+    this.registerResources();
   }
 
   private startFileWatcher(): void {
@@ -140,6 +143,7 @@ export class HexoRAGMCPServer {
 
     // 获取文件系统中所有文档的信息
     const docInfos = await this.loader.getAllDocumentInfo();
+    this.docInfo = docInfos;
     logger.info(`Found ${docInfos.length} documents in filesystem`);
 
     const currentTitles = new Set<string>();
@@ -252,6 +256,79 @@ export class HexoRAGMCPServer {
           .join('\n\n---\n\n');
         return {
           content: [{ type: 'text', text: context }],
+        };
+      },
+    );
+  }
+  registerResources(): void {
+    logger.info('Registering resources...');
+    this.server.registerResource(
+      '所有文章列表',
+      'blog://all-posts',
+      {
+        description: '所有文章标题。返回 JSON 格式。',
+        mimeType: 'application/json',
+        _meta: {
+          total: z.number().describe('文章总数'),
+          posts: z
+            .array(
+              z.object({
+                title: z.string().describe('文章标题'),
+              }),
+            )
+            .describe('文章列表'),
+        },
+      },
+      async () => {
+        return {
+          contents: [
+            {
+              uri: 'blog://all-posts',
+              mimeType: 'application/json',
+              text: JSON.stringify(
+                {
+                  total: this.docInfo.length,
+                  posts: this.docInfo.map((d) => ({ title: d.id })),
+                },
+                null,
+                2,
+              ),
+            },
+          ],
+        };
+      },
+    );
+    this.server.registerResource(
+      '文章内容',
+      new ResourceTemplate('blog://posts/{title}', {
+        list: () => {
+          return {
+            resources: this.docInfo.map((d) => ({
+              uri: `blog://posts/${d.id}`,
+              name: d.id,
+            })),
+          };
+        },
+      }),
+      {
+        description: '获取指定 title 的完整文章内容。',
+        mimeType: 'text/markdown',
+      },
+      async (uri) => {
+        const title = decodeURIComponent(uri.pathname.split('/').pop() || '');
+        const doc = this.docInfo.find((d) => d.id === title);
+        if (!doc) {
+          throw new Error(`未找到文章: ${title}`);
+        }
+        const document = await this.loader.loadDocument(doc.id);
+        return {
+          contents: [
+            {
+              uri: `blog://posts/${doc.id}`,
+              mimeType: 'text/markdown',
+              text: document.content,
+            },
+          ],
         };
       },
     );
