@@ -6,6 +6,38 @@ A RAG (Retrieval-Augmented Generation) MCP server for Hexo blog with vector sear
 
 > 💡 **Quick Demo:** If you want to add [David's Blog](https://luoluoqinghuan.cn) MCP, you can add it via https://luoluoqinghuan.cn/mcp
 
+**Transform your Hexo blog into a dedicated knowledge base for LLMs.**
+
+This project enables Large Language Models to directly access and search your Hexo blog content through the MCP (Model Context Protocol). When you chat with AI assistants like Claude or ChatGPT, they can retrieve relevant content from your technical articles, learning notes, and experience summaries in real-time, providing accurate answers based on your personal knowledge base.
+
+### 🎯 Core Value
+
+- **📚 Knowledge Reuse**: Your accumulated blog posts become a living knowledge source for AI assistants
+- **🎓 Personalized Answers**: AI provides customized advice based on your tech stack and experience
+- **⚡ Instant Retrieval**: No need to manually search old articles - AI finds relevant content automatically
+- **🔒 Privacy Control**: Data stored locally, you have full control over your knowledge base
+
+### 💡 Use Cases
+
+- **Technical Q&A**: Ask AI questions about your blog topics and get answers based on your articles
+- **Knowledge Review**: Quickly find technical solutions and methods you've written about before
+- **Learning Assistant**: Get personalized learning suggestions based on your study notes
+- **Content Creation**: Use existing article content to assist in creating new blog posts
+
+### 🔗 How It Works
+
+```mermaid
+graph LR
+    A[Your Hexo Blog] --> B[RAG MCP Server]
+    B --> C[Vector Database]
+    D[Claude/ChatGPT] <--> B
+    D --> E[Answers Based on Blog Content]
+```
+
+1. **Indexing Phase**: Scans your Hexo blog, converts article content into vectors and stores them
+2. **Conversation Phase**: When you ask AI a question, the server retrieves relevant article snippets
+3. **Enhanced Answers**: AI provides accurate answers based on retrieved content combined with context
+
 ## Features
 
 - 🔍 Vector-based semantic search for Hexo blog posts
