@@ -4,6 +4,8 @@
 
 基于向量搜索的 Hexo 博客 RAG (检索增强生成) MCP 服务器。
 
+> 💡 **快速体验：** 如果你想添加 [David's 博客](https://luoluoqinghuan.cn) 的 MCP，可通过 https://luoluoqinghuan.cn/mcp 添加。
+
 ## 功能特性
 
 - 🔍 基于向量的 Hexo 博客语义搜索

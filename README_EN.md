@@ -4,6 +4,8 @@
 
 A RAG (Retrieval-Augmented Generation) MCP server for Hexo blog with vector search capabilities.
 
+> 💡 **Quick Demo:** If you want to add [David's Blog](https://luoluoqinghuan.cn) MCP, you can add it via https://luoluoqinghuan.cn/mcp
+
 ## Features
 
 - 🔍 Vector-based semantic search for Hexo blog posts
