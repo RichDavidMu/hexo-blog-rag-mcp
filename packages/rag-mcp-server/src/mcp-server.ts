@@ -7,7 +7,12 @@ import { HexoLoader } from './loaders/hexo-loader.js';
 import { TextSplitter } from './utils/splitter.js';
 import { VectorStore } from './storage/vector-store.js';
 import logger from './utils/logger.js';
-import { HEXO_SOURCE_DIR, MCP_NAME } from './utils/env.js';
+import {
+  HEXO_SOURCE_DIR,
+  MCP_NAME,
+  TOOL_GET_BLOG_CONTEXT_DESCRIPTION,
+  TOOL_SEARCH_BLOG_DESCRIPTION,
+} from './utils/env.js';
 
 export class HexoRAGMCPServer {
   private vectorStore: VectorStore;
@@ -193,7 +198,7 @@ export class HexoRAGMCPServer {
     this.server.registerTool(
       'search_blog',
       {
-        description: '在 Hexo 博客中搜索相关内容',
+        description: TOOL_SEARCH_BLOG_DESCRIPTION,
         inputSchema: z.object({
           query: z.string().describe('搜索查询'),
           topK: z.number().optional().default(5).describe('返回的最相关结果数量，默认为 5'),
@@ -224,7 +229,7 @@ export class HexoRAGMCPServer {
     this.server.registerTool(
       'get_blog_context',
       {
-        description: '获取博客内容用于回答问题',
+        description: TOOL_GET_BLOG_CONTEXT_DESCRIPTION,
         inputSchema: z.object({
           question: z.string().describe('用户的问题'),
           threshold: z

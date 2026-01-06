@@ -62,6 +62,30 @@ QWEN_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1  # Optional
 - `text-embedding-v3` (1024 dimensions)
 - `text-embedding-v2` (1536 dimensions)
 
+### Tool Description Configuration
+
+自定义工具描述，引导 AI 助手在特定场景下调用工具：
+
+| Variable                            | Description                   | Default                                                                                                                                              |
+| ----------------------------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TOOL_SEARCH_BLOG_DESCRIPTION`      | `search_blog` 工具的描述      | `在 Hexo 博客中搜索相关内容。该博客主要涵盖 JavaScript、前端开发、React 和大语言模型(LLM)相关技术内容。仅当用户询问这些主题相关的问题时使用此工具。` |
+| `TOOL_GET_BLOG_CONTEXT_DESCRIPTION` | `get_blog_context` 工具的描述 | `获取博客内容用于回答问题。该博客专注于 JavaScript、前端开发、React 和 LLM 技术。仅在用户提问涉及这些技术领域时调用。`                               |
+
+**使用场景示例**：
+
+如果你的博客专注于特定领域（如前端、AI、区块链等），可以通过自定义工具描述来限制 AI 助手只在相关主题下调用搜索工具，避免在无关问题上浪费调用：
+
+```bash
+# 示例：限定为前端技术博客
+TOOL_SEARCH_BLOG_DESCRIPTION="在前端技术博客中搜索内容。该博客涵盖 React、Vue、TypeScript、前端工程化等主题。仅在用户询问前端相关技术问题时使用。"
+
+# 示例：限定为 AI/ML 博客
+TOOL_SEARCH_BLOG_DESCRIPTION="在 AI 和机器学习博客中搜索。涵盖深度学习、LLM、提示工程、模型微调等内容。仅在 AI/ML 相关问题时调用。"
+
+# 示例：通用博客（不限制）
+TOOL_SEARCH_BLOG_DESCRIPTION="在博客中搜索相关内容。"
+```
+
 ### Optional
 
 | Variable    | Description                              | Default       |
