@@ -7,7 +7,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && tsc-alias",
     "dev": "([ ! -f .env ] && touch .env);NODE_ENV=development tsx --env-file=.env src/index.ts",
     "start": "NODE_ENV=production node dist/index.js"
   },

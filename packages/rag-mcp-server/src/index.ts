@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import express from 'express';
-import { HexoRAGMCPServer } from './mcp-server.js';
-import logger from './utils/logger.js';
+import { HexoRAGMCPServer } from '@/mcp-server.js';
+import logger from '@/utils/logger.js';
 
 const app = express();
 app.use(express.json());
