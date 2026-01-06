@@ -6,6 +6,27 @@
 
 > 💡 **快速体验：** 如果你想添加 [David's 博客](https://luoluoqinghuan.cn) 的 MCP，可通过 https://luoluoqinghuan.cn/mcp 添加。
 
+## 🚀 快速开始
+
+### Docker 快速部署
+
+使用官方镜像，一键启动：
+
+```bash
+docker run -d \
+  -p 3000:3000 \
+  -e HEXO_SOURCE_DIR=/data/blog \
+  -e EMBEDDING_TYPE=simple \
+  -v /path/to/your/hexo/blog/source/_posts:/data/blog \
+  ghcr.io/richdavidmu/hexo-blog-rag-mcp:latest
+```
+
+**镜像地址：** `ghcr.io/richdavidmu/hexo-blog-rag-mcp:latest`
+
+替换 `/path/to/your/hexo/blog/source/_posts` 为你的 Hexo 博客 `source/_posts` 目录的实际路径即可。
+
+---
+
 **将你的 Hexo 博客转化为 LLM 的专属知识库。**
 
 本项目通过 MCP (Model Context Protocol) 协议，让大语言模型能够直接访问和搜索你的 Hexo 博客内容。当你与 Claude、ChatGPT 等 AI 助手对话时，它们可以实时检索你博客中的技术文章、学习笔记、经验总结等内容，为你提供基于个人知识库的精准回答。

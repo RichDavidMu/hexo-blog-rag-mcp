@@ -6,6 +6,27 @@ A RAG (Retrieval-Augmented Generation) MCP server for Hexo blog with vector sear
 
 > 💡 **Quick Demo:** If you want to add [David's Blog](https://luoluoqinghuan.cn) MCP, you can add it via https://luoluoqinghuan.cn/mcp
 
+## 🚀 Quick Start
+
+### Docker Quick Deployment
+
+Use the official image for one-command startup:
+
+```bash
+docker run -d \
+  -p 3000:3000 \
+  -e HEXO_SOURCE_DIR=/data/blog \
+  -e EMBEDDING_TYPE=simple \
+  -v /path/to/your/hexo/blog/source/_posts:/data/blog \
+  ghcr.io/richdavidmu/hexo-blog-rag-mcp:latest
+```
+
+**Image:** `ghcr.io/richdavidmu/hexo-blog-rag-mcp:latest`
+
+Replace `/path/to/your/hexo/blog/source/_posts` with the actual path to your Hexo blog's `source/_posts` directory.
+
+---
+
 **Transform your Hexo blog into a dedicated knowledge base for LLMs.**
 
 This project enables Large Language Models to directly access and search your Hexo blog content through the MCP (Model Context Protocol). When you chat with AI assistants like Claude or ChatGPT, they can retrieve relevant content from your technical articles, learning notes, and experience summaries in real-time, providing accurate answers based on your personal knowledge base.
