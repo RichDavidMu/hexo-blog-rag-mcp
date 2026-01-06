@@ -34,7 +34,7 @@ export class HexoRAGMCPServer {
 
     await this.server.connect(transport);
     this.transport = transport;
-    logger.info('Hexo RAG MCP Server running on stdio');
+    logger.info('Hexo RAG MCP Server running');
   }
 
   async initialize(): Promise<void> {

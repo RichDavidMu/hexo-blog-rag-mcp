@@ -66,15 +66,18 @@ export class VectorStore {
     }
 
     const queryVector = simpleVectorize(query);
-    const results = await this.table.search(queryVector).limit(topK).toArray();
+    const results: ({ _distance: number } & Chunk)[] = await this.table
+      .search(queryVector)
+      .limit(topK)
+      .toArray();
 
     // 过滤掉距离大于阈值的结果（距离越小越相似）
-    const filteredResults = results.filter((result: any) => {
+    const filteredResults = results.filter((result) => {
       const distance = result._distance ?? Infinity;
       return distance <= threshold;
     });
 
-    return filteredResults.map((result: any) => ({
+    return filteredResults.map((result) => ({
       text: result.text,
       docId: result.docId,
       title: result.title,

@@ -43,7 +43,7 @@ app.delete('/mcp', async (_req: Request, res: Response) => {
 app.post('/mcp', async (req, res) => {
   logger.info('Received MCP request:', req.body);
   try {
-    await mcpServer.transport!.handleRequest(req, res);
+    await mcpServer.transport!.handleRequest(req, res, req.body);
   } catch (error) {
     logger.error('Error handling MCP request:', { error });
     if (!res.headersSent) {
