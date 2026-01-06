@@ -3,29 +3,16 @@ import lancedb from '@lancedb/lancedb';
 import type { Chunk } from '../utils/splitter.js';
 import logger from '../utils/logger.js';
 import { DB_DIR } from '../utils/env.js';
-
-function simpleVectorize(text: string): number[] {
-  // 这里演示简单的哈希方法，实际应用建议使用专业的embedding模型
-  const words = text.toLowerCase().split(/\s+/);
-  const vector = new Array(384).fill(0);
-
-  for (const word of words) {
-    let hash = 0;
-    for (let i = 0; i < word.length; i++) {
-      hash = (hash << 5) - hash + word.charCodeAt(i);
-      hash = hash & hash; // Convert to 32bit integer
-    }
-    vector[Math.abs(hash) % 384] += 1;
-  }
-
-  // 归一化
-  const norm = Math.sqrt(vector.reduce((a, b) => a + b * b, 0));
-  return norm > 0 ? vector.map((v) => v / norm) : vector;
-}
+import { type EmbeddingService, createEmbeddingService } from '../services/embedding.js';
 
 export class VectorStore {
   private db: Connection | null = null;
   private table: Table | null = null;
+  private embeddingService: EmbeddingService;
+
+  constructor() {
+    this.embeddingService = createEmbeddingService();
+  }
 
   async initialize() {
     this.db = await lancedb.connect(DB_DIR);
@@ -35,21 +22,26 @@ export class VectorStore {
       this.table = null;
     }
     logger.info('Vector database initialized');
+    logger.info(`Embedding dimension: ${this.embeddingService.getDimension()}`);
   }
 
   async addChunks(chunks: Chunk[], hash: string): Promise<void> {
-    const data = chunks.map((chunk) => ({
-      id: `${chunk.docId}_${chunk.chunkIndex}`,
-      text: chunk.text,
-      vector: simpleVectorize(chunk.text),
-      docId: chunk.docId,
-      title: chunk.title,
-      chunkIndex: chunk.chunkIndex,
-      hash,
-    }));
     if (!this.db) {
       throw new Error('Vector store not initialized');
     }
+
+    // 并行生成所有 chunk 的向量
+    const data = await Promise.all(
+      chunks.map(async (chunk) => ({
+        id: `${chunk.docId}_${chunk.chunkIndex}`,
+        text: chunk.text,
+        vector: await this.embeddingService.embed(chunk.text),
+        docId: chunk.docId,
+        title: chunk.title,
+        chunkIndex: chunk.chunkIndex,
+        hash,
+      })),
+    );
 
     if (!this.table) {
       this.table = await this.db.createTable('documents', data);
@@ -65,7 +57,7 @@ export class VectorStore {
       throw new Error('Vector store not initialized');
     }
 
-    const queryVector = simpleVectorize(query);
+    const queryVector = await this.embeddingService.embed(query);
     const results: ({ _distance: number } & Chunk)[] = await this.table
       .search(queryVector)
       .limit(topK)
