@@ -298,8 +298,7 @@ By customizing tool descriptions, you can:
 
 - ❌ "What's the weather today?" - AI won't call blog search
 - ❌ "Write me a poem" - AI won't call blog search
-- ✅ "How to use useEffect in React?" - AI will call blog search
-- ✅ "What are LLM prompt engineering tips?" - AI will call blog search
+- ✅ "learn babel" - AI will call blog search
 
 ## Architecture
 
